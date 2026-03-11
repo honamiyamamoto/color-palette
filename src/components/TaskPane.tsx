@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { exportPaletteJson, importPaletteJson } from '../storage/paletteStorage'
 import type { ApplyTarget, Palette } from '../types/palette'
 import { clonePalette, createId } from '../utils/colorUtils'
@@ -12,8 +12,6 @@ interface SaveResult {
 interface TaskPaneProps {
   isOpen: boolean
   palette: Palette
-  applyTarget: ApplyTarget
-  onApplyTargetChange: (target: ApplyTarget) => void
   onApplyColor: (target: ApplyTarget, hex: string) => void
   onSavePalette: (palette: Palette) => SaveResult
 }
@@ -22,14 +20,6 @@ interface EditingColorRef {
   groupId: string
   colorId: string
 }
-
-const APPLY_LABELS: Record<ApplyTarget, string> = {
-  text: '文字',
-  fill: '塗り',
-  stroke: '枠線',
-}
-
-const APPLY_TARGETS: ApplyTarget[] = ['text', 'fill', 'stroke']
 
 function moveItem<T>(items: T[], index: number, direction: 'up' | 'down'): T[] {
   const targetIndex = direction === 'up' ? index - 1 : index + 1
@@ -43,14 +33,7 @@ function moveItem<T>(items: T[], index: number, direction: 'up' | 'down'): T[] {
   return next
 }
 
-export function TaskPane({
-  isOpen,
-  palette,
-  applyTarget,
-  onApplyTargetChange,
-  onApplyColor,
-  onSavePalette,
-}: TaskPaneProps) {
+export function TaskPane({ isOpen, palette, onApplyColor, onSavePalette }: TaskPaneProps) {
   const [isEditMode, setIsEditMode] = useState(false)
   const [draftPalette, setDraftPalette] = useState<Palette>(() => clonePalette(palette))
   const [editingColorRef, setEditingColorRef] = useState<EditingColorRef | null>(null)
@@ -80,9 +63,7 @@ export function TaskPane({
     return group.colors.find((item) => item.id === editingColorRef.colorId) ?? null
   }, [draftPalette.groups, editingColorRef])
 
-  const updateDraftGroups = (
-    updater: (groups: Palette['groups']) => Palette['groups'],
-  ) => {
+  const updateDraftGroups = (updater: (groups: Palette['groups']) => Palette['groups']) => {
     setDraftPalette((prev) => ({
       ...prev,
       updatedAt: new Date().toISOString(),
@@ -117,6 +98,7 @@ export function TaskPane({
       version: 1,
       updatedAt: new Date().toISOString(),
     }
+
     const result = onSavePalette(payload)
     setPaneMessage(result.message)
     if (result.ok) {
@@ -148,7 +130,7 @@ export function TaskPane({
 
     setDraftPalette(result.palette)
     setImportError('')
-    setPaneMessage('インポート内容を編集データへ反映しました。保存で確定します。')
+    setPaneMessage('インポート内容を編集データに反映しました。保存で確定します。')
   }
 
   return (
@@ -167,18 +149,9 @@ export function TaskPane({
         </button>
       </div>
 
-      <div className="target-segment">
-        {APPLY_TARGETS.map((target) => (
-          <button
-            key={target}
-            type="button"
-            className={`segment-btn ${applyTarget === target ? 'active' : ''}`}
-            onClick={() => onApplyTargetChange(target)}
-          >
-            {APPLY_LABELS[target]}
-          </button>
-        ))}
-      </div>
+      {!isEditMode && (
+        <p className="pane-hint">A / ■ / □ を押して文字・塗り・枠線を個別に適用します。</p>
+      )}
 
       {paneMessage && <p className="pane-message">{paneMessage}</p>}
 
@@ -208,9 +181,7 @@ export function TaskPane({
                     type="button"
                     className="mini-btn"
                     onClick={() =>
-                      updateDraftGroups((prevGroups) =>
-                        moveItem(prevGroups, groupIndex, 'up'),
-                      )
+                      updateDraftGroups((prevGroups) => moveItem(prevGroups, groupIndex, 'up'))
                     }
                   >
                     ↑
@@ -244,26 +215,55 @@ export function TaskPane({
 
             {group.colors.map((color, colorIndex) => (
               <div key={color.id} className="color-row">
-                <button
-                  type="button"
-                  className="swatch-btn"
-                  style={{ backgroundColor: color.hex }}
-                  onClick={() => onApplyColor(applyTarget, color.hex)}
-                  aria-label={`${color.name}を適用`}
-                />
+                <div className="swatch-preview" style={{ backgroundColor: color.hex }} />
                 <div className="color-meta">
                   <strong>{color.name}</strong>
                   <span>{color.hex}</span>
                 </div>
 
-                {isEditMode ? (
-                  <div className="row-actions">
+                {!isEditMode && (
+                  <div className="apply-action-set">
+                    <button
+                      type="button"
+                      className="apply-target-btn"
+                      title="文字色に適用"
+                      onClick={() => onApplyColor('text', color.hex)}
+                    >
+                      <span className="target-icon text" style={{ color: color.hex }}>
+                        A
+                      </span>
+                      <span className="target-label">文字</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="apply-target-btn"
+                      title="図形の塗りに適用"
+                      onClick={() => onApplyColor('fill', color.hex)}
+                    >
+                      <span
+                        className="target-icon fill"
+                        style={{ backgroundColor: color.hex, borderColor: color.hex }}
+                      />
+                      <span className="target-label">塗り</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="apply-target-btn"
+                      title="図形の枠線に適用"
+                      onClick={() => onApplyColor('stroke', color.hex)}
+                    >
+                      <span className="target-icon stroke" style={{ borderColor: color.hex }} />
+                      <span className="target-label">枠線</span>
+                    </button>
+                  </div>
+                )}
+
+                {isEditMode && (
+                  <div className="row-actions edit-row-actions">
                     <button
                       type="button"
                       className="mini-btn"
-                      onClick={() =>
-                        setEditingColorRef({ groupId: group.id, colorId: color.id })
-                      }
+                      onClick={() => setEditingColorRef({ groupId: group.id, colorId: color.id })}
                     >
                       編集
                     </button>
@@ -316,42 +316,13 @@ export function TaskPane({
                             }
                             return {
                               ...currentGroup,
-                              colors: currentGroup.colors.filter(
-                                (item) => item.id !== color.id,
-                              ),
+                              colors: currentGroup.colors.filter((item) => item.id !== color.id),
                             }
                           }),
                         )
                       }
                     >
                       削除
-                    </button>
-                  </div>
-                ) : (
-                  <div className="row-actions compact">
-                    <button
-                      type="button"
-                      className="mini-btn icon-target"
-                      onClick={() => onApplyColor('text', color.hex)}
-                      title="文字色に適用"
-                    >
-                      A
-                    </button>
-                    <button
-                      type="button"
-                      className="mini-btn icon-target"
-                      onClick={() => onApplyColor('fill', color.hex)}
-                      title="図形の塗りに適用"
-                    >
-                      ■
-                    </button>
-                    <button
-                      type="button"
-                      className="mini-btn icon-target"
-                      onClick={() => onApplyColor('stroke', color.hex)}
-                      title="図形の枠線に適用"
-                    >
-                      □
                     </button>
                   </div>
                 )}
@@ -434,9 +405,7 @@ export function TaskPane({
                 </button>
               </div>
 
-              {exportText && (
-                <textarea className="json-area" value={exportText} readOnly rows={7} />
-              )}
+              {exportText && <textarea className="json-area" value={exportText} readOnly rows={7} />}
 
               <label className="import-label" htmlFor="import-json">
                 インポート(JSON)
@@ -479,6 +448,7 @@ export function TaskPane({
           if (!editingColorRef) {
             return
           }
+
           updateDraftGroups((prevGroups) =>
             prevGroups.map((group) => {
               if (group.id !== editingColorRef.groupId) {
@@ -492,6 +462,7 @@ export function TaskPane({
               }
             }),
           )
+
           setEditingColorRef(null)
           setPaneMessage('色を更新しました。保存で確定します。')
         }}

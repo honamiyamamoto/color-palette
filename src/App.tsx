@@ -15,7 +15,6 @@ function App() {
   const [slideElements, setSlideElements] =
     useState<SlideElement[]>(INITIAL_SLIDE_ELEMENTS)
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null)
-  const [applyTarget, setApplyTarget] = useState<ApplyTarget>('text')
   const [isTaskPaneOpen, setIsTaskPaneOpen] = useState(true)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const toastTimerRef = useRef<number | null>(null)
@@ -85,8 +84,6 @@ function App() {
         <TaskPane
           isOpen={isTaskPaneOpen}
           palette={palette}
-          applyTarget={applyTarget}
-          onApplyTargetChange={setApplyTarget}
           onApplyColor={handleApplyColor}
           onSavePalette={handleSavePalette}
         />
