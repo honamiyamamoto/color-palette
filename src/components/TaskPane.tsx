@@ -237,14 +237,14 @@ export function TaskPane({ isOpen, palette, onApplyColor, onSavePalette }: TaskP
                     <button
                       type="button"
                       className="apply-target-btn"
-                      title="図形の塗りに適用"
+                      title="オブジェクト塗りつぶしに適用"
                       onClick={() => onApplyColor('fill', color.hex)}
                     >
                       <span
                         className="target-icon fill"
                         style={{ backgroundColor: color.hex, borderColor: color.hex }}
                       />
-                      <span className="target-label">塗り</span>
+                      <span className="target-label">オブジェクト</span>
                     </button>
                     <button
                       type="button"
