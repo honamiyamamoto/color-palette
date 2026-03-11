@@ -4,10 +4,6 @@ import { createId, isValidHex, normalizeHex } from '../utils/colorUtils'
 
 const STORAGE_KEY = 'color-palette.taskpane.palette.v1'
 
-type ImportResult =
-  | { ok: true; palette: Palette }
-  | { ok: false; error: string }
-
 export function loadPalette(): Palette {
   const fallback = createDefaultPalette()
 
@@ -33,33 +29,6 @@ export function loadPalette(): Palette {
 
 export function savePalette(palette: Palette): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(palette))
-}
-
-export function exportPaletteJson(palette: Palette): string {
-  return JSON.stringify(palette, null, 2)
-}
-
-export function importPaletteJson(input: string): ImportResult {
-  if (!input.trim()) {
-    return { ok: false, error: 'JSON文字列が空です。' }
-  }
-
-  try {
-    const parsed = JSON.parse(input) as unknown
-    const palette = coercePalette(parsed)
-
-    if (!palette) {
-      return {
-        ok: false,
-        error:
-          'パレット形式が不正です。groups[]、group.name、color.hex(#RRGGBB) を確認してください。',
-      }
-    }
-
-    return { ok: true, palette }
-  } catch {
-    return { ok: false, error: 'JSONの構文が不正です。' }
-  }
 }
 
 function coercePalette(value: unknown): Palette | null {

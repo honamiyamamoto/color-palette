@@ -1,5 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
-import { exportPaletteJson, importPaletteJson } from '../storage/paletteStorage'
+import { useMemo, useState } from 'react'
 import type { ApplyTarget, Palette } from '../types/palette'
 import { clonePalette, createId } from '../utils/colorUtils'
 import { PaletteEditorModal } from './PaletteEditorModal'
@@ -38,15 +37,6 @@ export function TaskPane({ isOpen, palette, onApplyColor, onSavePalette }: TaskP
   const [draftPalette, setDraftPalette] = useState<Palette>(() => clonePalette(palette))
   const [editingColorRef, setEditingColorRef] = useState<EditingColorRef | null>(null)
   const [paneMessage, setPaneMessage] = useState('')
-  const [exportText, setExportText] = useState('')
-  const [importText, setImportText] = useState('')
-  const [importError, setImportError] = useState('')
-
-  useEffect(() => {
-    if (!isEditMode) {
-      setDraftPalette(clonePalette(palette))
-    }
-  }, [palette, isEditMode])
 
   const viewingPalette = isEditMode ? draftPalette : palette
 
@@ -76,20 +66,20 @@ export function TaskPane({ isOpen, palette, onApplyColor, onSavePalette }: TaskP
       setIsEditMode(false)
       setDraftPalette(clonePalette(palette))
       setEditingColorRef(null)
-      setPaneMessage('編集モードを終了しました。未保存変更は破棄されます。')
+      setPaneMessage('')
       return
     }
 
     setIsEditMode(true)
     setDraftPalette(clonePalette(palette))
-    setPaneMessage('編集モードに切り替えました。保存で確定します。')
+    setPaneMessage('')
   }
 
   const handleDiscardChanges = () => {
     setIsEditMode(false)
     setDraftPalette(clonePalette(palette))
     setEditingColorRef(null)
-    setPaneMessage('変更を破棄しました。')
+    setPaneMessage('')
   }
 
   const handleSaveChanges = () => {
@@ -104,48 +94,19 @@ export function TaskPane({ isOpen, palette, onApplyColor, onSavePalette }: TaskP
     if (result.ok) {
       setIsEditMode(false)
       setEditingColorRef(null)
-      setImportError('')
     }
-  }
-
-  const handleCopyExportText = async () => {
-    if (!exportText) {
-      return
-    }
-
-    try {
-      await navigator.clipboard.writeText(exportText)
-      setPaneMessage('エクスポートJSONをコピーしました。')
-    } catch {
-      setPaneMessage('コピーに失敗しました。')
-    }
-  }
-
-  const handleImport = () => {
-    const result = importPaletteJson(importText)
-    if (!result.ok) {
-      setImportError(result.error)
-      return
-    }
-
-    setDraftPalette(result.palette)
-    setImportError('')
-    setPaneMessage('インポート内容を編集データに反映しました。保存で確定します。')
   }
 
   return (
     <aside className={`task-pane ${isOpen ? 'open' : ''}`}>
       <div className="task-pane-header">
-        <div>
-          <h2 className="pane-title">カラーパレット</h2>
-          <p className="pane-subtitle">{isEditMode ? '編集モード' : '通常モード'}</p>
-        </div>
+        <h2 className="pane-title">カラーパレット</h2>
         <button
           type="button"
           className={`icon-btn ${isEditMode ? 'active' : ''}`}
           onClick={handleToggleEditMode}
         >
-          ✎ 編集
+          ✎ {isEditMode ? '編集を終了' : '編集'}
         </button>
       </div>
 
@@ -361,69 +322,28 @@ export function TaskPane({ isOpen, palette, onApplyColor, onSavePalette }: TaskP
         ))}
 
         {isEditMode && (
-          <>
-            <button
-              type="button"
-              className="secondary-btn add-group-btn"
-              onClick={() =>
-                updateDraftGroups((prevGroups) => [
-                  ...prevGroups,
-                  {
-                    id: createId('group'),
-                    name: `新規グループ ${prevGroups.length + 1}`,
-                    colors: [
-                      {
-                        id: createId('color'),
-                        name: 'New Color',
-                        hex: '#000000',
-                      },
-                    ],
-                  },
-                ])
-              }
-            >
-              + グループを追加
-            </button>
-
-            <section className="io-panel">
-              <h3>JSON エクスポート / インポート</h3>
-              <div className="io-row">
-                <button
-                  type="button"
-                  className="secondary-btn"
-                  onClick={() => setExportText(exportPaletteJson(draftPalette))}
-                >
-                  エクスポート表示
-                </button>
-                <button
-                  type="button"
-                  className="secondary-btn"
-                  disabled={!exportText}
-                  onClick={() => void handleCopyExportText()}
-                >
-                  コピー
-                </button>
-              </div>
-
-              {exportText && <textarea className="json-area" value={exportText} readOnly rows={7} />}
-
-              <label className="import-label" htmlFor="import-json">
-                インポート(JSON)
-              </label>
-              <textarea
-                id="import-json"
-                className="json-area"
-                rows={7}
-                value={importText}
-                onChange={(event) => setImportText(event.target.value)}
-                placeholder="ここにJSONを貼り付け"
-              />
-              <button type="button" className="secondary-btn" onClick={handleImport}>
-                インポート反映
-              </button>
-              {importError && <p className="form-error">{importError}</p>}
-            </section>
-          </>
+          <button
+            type="button"
+            className="secondary-btn add-group-btn"
+            onClick={() =>
+              updateDraftGroups((prevGroups) => [
+                ...prevGroups,
+                {
+                  id: createId('group'),
+                  name: `新規グループ ${prevGroups.length + 1}`,
+                  colors: [
+                    {
+                      id: createId('color'),
+                      name: 'New Color',
+                      hex: '#000000',
+                    },
+                  ],
+                },
+              ])
+            }
+          >
+            + グループを追加
+          </button>
         )}
       </div>
 
@@ -439,6 +359,7 @@ export function TaskPane({ isOpen, palette, onApplyColor, onSavePalette }: TaskP
       )}
 
       <PaletteEditorModal
+        key={editingColorRef?.colorId ?? 'palette-editor-closed'}
         isOpen={Boolean(editingColor)}
         title="色を編集"
         initialName={editingColor?.name ?? ''}
@@ -464,7 +385,7 @@ export function TaskPane({ isOpen, palette, onApplyColor, onSavePalette }: TaskP
           )
 
           setEditingColorRef(null)
-          setPaneMessage('色を更新しました。保存で確定します。')
+          setPaneMessage('')
         }}
       />
     </aside>

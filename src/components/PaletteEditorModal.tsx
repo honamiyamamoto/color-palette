@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { isValidHex, normalizeHex } from '../utils/colorUtils'
 
 interface PaletteEditorModalProps {
@@ -20,14 +20,6 @@ export function PaletteEditorModal({
 }: PaletteEditorModalProps) {
   const [name, setName] = useState(initialName)
   const [hex, setHex] = useState(normalizeHex(initialHex))
-
-  useEffect(() => {
-    if (!isOpen) {
-      return
-    }
-    setName(initialName)
-    setHex(normalizeHex(initialHex))
-  }, [initialHex, initialName, isOpen])
 
   if (!isOpen) {
     return null
