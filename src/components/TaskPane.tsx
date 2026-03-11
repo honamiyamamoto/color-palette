@@ -110,10 +110,6 @@ export function TaskPane({ isOpen, palette, onApplyColor, onSavePalette }: TaskP
         </button>
       </div>
 
-      {!isEditMode && (
-        <p className="pane-hint">A / ■ / □ を押して文字・塗り・枠線を個別に適用します。</p>
-      )}
-
       {paneMessage && <p className="pane-message">{paneMessage}</p>}
 
       <div className="task-pane-body">
