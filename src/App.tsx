@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import './App.css'
 import { RibbonBar } from './components/RibbonBar'
 import { SlideCanvas } from './components/SlideCanvas'
@@ -11,9 +11,9 @@ import type { ApplyTarget, Palette } from './types/palette'
 import type { SlideElement } from './types/slide'
 
 function App() {
-  const TASK_PANE_MIN_WIDTH = 340
+  const TASK_PANE_MIN_WIDTH = 320
   const TASK_PANE_MAX_WIDTH = 520
-  const TASK_PANE_DEFAULT_WIDTH = 340
+  const TASK_PANE_DEFAULT_WIDTH = 320
 
   const [palette, setPalette] = useState<Palette>(() => loadPalette())
   const [slideElements, setSlideElements] =
@@ -70,7 +70,17 @@ function App() {
     })
   }
 
-  const handlePaneResizeStart = () => {
+  const stopPaneResize = () => {
+    isResizingRef.current = false
+    document.body.style.cursor = ''
+    document.body.style.userSelect = ''
+  }
+
+  const handlePaneResizeStart = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    if (event.button !== 0) {
+      return
+    }
+
     isResizingRef.current = true
     document.body.style.cursor = 'col-resize'
     document.body.style.userSelect = 'none'
@@ -88,7 +98,7 @@ function App() {
       )
       const nextWidth = window.innerWidth - event.clientX
       const boundedWidth = Math.min(Math.max(nextWidth, TASK_PANE_MIN_WIDTH), maxWidth)
-      setTaskPaneWidth(boundedWidth)
+      setTaskPaneWidth((prev) => (prev === boundedWidth ? prev : boundedWidth))
     }
 
     const handlePointerUp = () => {
@@ -96,17 +106,20 @@ function App() {
         return
       }
 
-      isResizingRef.current = false
-      document.body.style.cursor = ''
-      document.body.style.userSelect = ''
+      stopPaneResize()
     }
 
     window.addEventListener('pointermove', handlePointerMove)
     window.addEventListener('pointerup', handlePointerUp)
+    window.addEventListener('pointercancel', handlePointerUp)
+    window.addEventListener('blur', handlePointerUp)
 
     return () => {
       window.removeEventListener('pointermove', handlePointerMove)
       window.removeEventListener('pointerup', handlePointerUp)
+      window.removeEventListener('pointercancel', handlePointerUp)
+      window.removeEventListener('blur', handlePointerUp)
+      stopPaneResize()
     }
   }, [])
 

@@ -39,7 +39,7 @@
 
 
 .workspace-body {
-  --task-pane-width: 340px;
+  --task-pane-width: 320px;
   flex: 1;
   position: relative;
   overflow: hidden;
@@ -171,7 +171,7 @@
   right: 0;
   bottom: 0;
   width: var(--task-pane-width);
-  min-width: 340px;
+  min-width: 320px;
   background: #f8fbff;
   border-left: 1px solid #cad5e5;
   box-shadow: -8px 0 20px rgba(40, 57, 89, 0.15);
@@ -229,11 +229,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 6px;
 }
 
 .pane-title {
   margin: 0;
-  font-size: 14px;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.2;
 }
 
 
@@ -273,8 +276,10 @@
 
 .group-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
   margin-bottom: 8px;
 }
 
@@ -284,7 +289,8 @@
 }
 
 .group-name-input {
-  width: 118px;
+  width: min(118px, 100%);
+  max-width: 100%;
   border: 1px solid #c8d4e6;
   border-radius: 4px;
   padding: 4px 5px;
