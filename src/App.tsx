@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import './App.css'
 import { RibbonBar } from './components/RibbonBar'
 import { SlideCanvas } from './components/SlideCanvas'
@@ -11,13 +11,19 @@ import type { ApplyTarget, Palette } from './types/palette'
 import type { SlideElement } from './types/slide'
 
 function App() {
+  const TASK_PANE_MIN_WIDTH = 340
+  const TASK_PANE_MAX_WIDTH = 520
+  const TASK_PANE_DEFAULT_WIDTH = 340
+
   const [palette, setPalette] = useState<Palette>(() => loadPalette())
   const [slideElements, setSlideElements] =
     useState<SlideElement[]>(INITIAL_SLIDE_ELEMENTS)
-  const [selectedElementId, setSelectedElementId] = useState<string | null>(null)
+  const [selectedElementIds, setSelectedElementIds] = useState<string[]>([])
   const [isTaskPaneOpen, setIsTaskPaneOpen] = useState(true)
+  const [taskPaneWidth, setTaskPaneWidth] = useState(TASK_PANE_DEFAULT_WIDTH)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const toastTimerRef = useRef<number | null>(null)
+  const isResizingRef = useRef(false)
 
   const showToast = (message: string) => {
     setToastMessage(message)
@@ -41,7 +47,7 @@ function App() {
   const handleApplyColor = (target: ApplyTarget, hex: string) => {
     const result = applyColor({
       elements: slideElements,
-      selectedElementId,
+      selectedElementIds,
       target,
       hex,
     })
@@ -53,6 +59,56 @@ function App() {
 
     setSlideElements(result.elements)
   }
+
+  const handleSelectElement = (id: string, options?: { additive?: boolean }) => {
+    setSelectedElementIds((prev) => {
+      if (options?.additive) {
+        return prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      }
+
+      return prev.length === 1 && prev[0] === id ? prev : [id]
+    })
+  }
+
+  const handlePaneResizeStart = () => {
+    isResizingRef.current = true
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+  }
+
+  useEffect(() => {
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!isResizingRef.current) {
+        return
+      }
+
+      const maxWidth = Math.max(
+        TASK_PANE_MIN_WIDTH,
+        Math.min(TASK_PANE_MAX_WIDTH, window.innerWidth - 240),
+      )
+      const nextWidth = window.innerWidth - event.clientX
+      const boundedWidth = Math.min(Math.max(nextWidth, TASK_PANE_MIN_WIDTH), maxWidth)
+      setTaskPaneWidth(boundedWidth)
+    }
+
+    const handlePointerUp = () => {
+      if (!isResizingRef.current) {
+        return
+      }
+
+      isResizingRef.current = false
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+
+    window.addEventListener('pointermove', handlePointerMove)
+    window.addEventListener('pointerup', handlePointerUp)
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerup', handlePointerUp)
+    }
+  }, [])
 
   const handleSavePalette = (nextPalette: Palette) => {
     try {
@@ -73,14 +129,30 @@ function App() {
         isPaneOpen={isTaskPaneOpen}
         onTogglePane={() => setIsTaskPaneOpen((prev) => !prev)}
       />
-      <main className={`workspace-body ${isTaskPaneOpen ? 'pane-open' : ''}`}>
+      <main
+        className={`workspace-body ${isTaskPaneOpen ? 'pane-open' : ''}`}
+        style={
+          {
+            '--task-pane-width': `${taskPaneWidth}px`,
+          } as CSSProperties
+        }
+      >
         <div className="slide-region">
           <SlideCanvas
             elements={slideElements}
-            selectedElementId={selectedElementId}
-            onSelectElement={setSelectedElementId}
+            selectedElementIds={selectedElementIds}
+            onSelectElement={handleSelectElement}
+            onClearSelection={() => setSelectedElementIds([])}
           />
         </div>
+        {isTaskPaneOpen && (
+          <button
+            type="button"
+            className="task-pane-resizer"
+            aria-label="右ペインの幅を調整"
+            onPointerDown={handlePaneResizeStart}
+          />
+        )}
         <TaskPane
           isOpen={isTaskPaneOpen}
           palette={palette}

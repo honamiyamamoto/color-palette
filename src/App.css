@@ -39,6 +39,7 @@
 
 
 .workspace-body {
+  --task-pane-width: 340px;
   flex: 1;
   position: relative;
   overflow: hidden;
@@ -46,7 +47,7 @@
 }
 
 .workspace-body.pane-open {
-  padding-right: 264px;
+  padding-right: var(--task-pane-width);
 }
 
 .slide-region {
@@ -169,7 +170,8 @@
   top: 0;
   right: 0;
   bottom: 0;
-  width: 264px;
+  width: var(--task-pane-width);
+  min-width: 340px;
   background: #f8fbff;
   border-left: 1px solid #cad5e5;
   box-shadow: -8px 0 20px rgba(40, 57, 89, 0.15);
@@ -178,6 +180,39 @@
   transform: translateX(100%);
   transition: transform 220ms ease;
   pointer-events: none;
+}
+
+.task-pane-resizer {
+  position: absolute;
+  top: 0;
+  right: var(--task-pane-width);
+  bottom: 0;
+  width: 12px;
+  transform: translateX(50%);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  cursor: col-resize;
+  z-index: 5;
+}
+
+.task-pane-resizer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(111, 151, 203, 0) 0%, #6f97cb 20%, #6f97cb 80%, rgba(111, 151, 203, 0) 100%);
+  opacity: 0.55;
+}
+
+.task-pane-resizer:hover::before,
+.task-pane-resizer:focus-visible::before {
+  opacity: 1;
 }
 
 .task-pane.open {
@@ -224,6 +259,7 @@
 
 .task-pane-body {
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0 10px 12px;
 }
 

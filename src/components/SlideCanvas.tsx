@@ -2,20 +2,22 @@ import type { SlideElement } from '../types/slide'
 
 interface SlideCanvasProps {
   elements: SlideElement[]
-  selectedElementId: string | null
-  onSelectElement: (id: string | null) => void
+  selectedElementIds: string[]
+  onSelectElement: (id: string, options?: { additive?: boolean }) => void
+  onClearSelection: () => void
 }
 
 export function SlideCanvas({
   elements,
-  selectedElementId,
+  selectedElementIds,
   onSelectElement,
+  onClearSelection,
 }: SlideCanvasProps) {
   return (
-    <section className="canvas-surface" onClick={() => onSelectElement(null)}>
+    <section className="canvas-surface" onClick={onClearSelection}>
       <div className="slide-sheet">
         {elements.map((element) => {
-          const isSelected = element.id === selectedElementId
+          const isSelected = selectedElementIds.includes(element.id)
           const itemStyle = {
             left: `${element.x}px`,
             top: `${element.y}px`,
@@ -30,7 +32,9 @@ export function SlideCanvas({
               style={itemStyle}
               onClick={(event) => {
                 event.stopPropagation()
-                onSelectElement(element.id)
+                onSelectElement(element.id, {
+                  additive: event.ctrlKey || event.metaKey || event.shiftKey,
+                })
               }}
             >
               {element.type === 'text' && (

@@ -4,7 +4,7 @@ import { isValidHex, normalizeHex } from '../utils/colorUtils'
 
 interface ApplyColorParams {
   elements: SlideElement[]
-  selectedElementId: string | null
+  selectedElementIds: string[]
   target: ApplyTarget
   hex: string
 }
@@ -17,11 +17,11 @@ interface ApplyColorResult {
 
 export function applyColor({
   elements,
-  selectedElementId,
+  selectedElementIds,
   target,
   hex,
 }: ApplyColorParams): ApplyColorResult {
-  if (!selectedElementId) {
+  if (selectedElementIds.length === 0) {
     return {
       elements,
       applied: false,
@@ -40,7 +40,7 @@ export function applyColor({
 
   // モックでは状態更新で CSS に反映。将来はこの境界で Office.js / VSTO 連携に差し替える。
   const nextElements = elements.map((element) => {
-    if (element.id !== selectedElementId) {
+    if (!selectedElementIds.includes(element.id)) {
       return element
     }
 
