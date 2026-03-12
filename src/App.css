@@ -171,12 +171,13 @@
   right: 0;
   bottom: 0;
   width: var(--task-pane-width);
-  min-width: 300px;
+  min-width: 280px;
   background: #f8fbff;
   border-left: 1px solid #cad5e5;
   box-shadow: -8px 0 20px rgba(40, 57, 89, 0.15);
   display: flex;
   flex-direction: column;
+  container-type: inline-size;
   transform: translateX(100%);
   transition: transform 220ms ease;
   pointer-events: none;
@@ -387,6 +388,45 @@
 
 .target-icon.stroke {
   background: transparent;
+}
+
+@container (max-width: 300px) {
+  .apply-action-set {
+    gap: 2px;
+  }
+
+  .apply-target-btn {
+    height: 24px;
+    border-radius: 4px;
+  }
+
+  .target-icon.text {
+    font-size: 12px;
+  }
+
+  .target-icon.fill,
+  .target-icon.stroke {
+    width: 10px;
+    height: 10px;
+    border-width: 1.5px;
+  }
+}
+
+@container (max-width: 285px) {
+  .apply-target-btn {
+    height: 22px;
+  }
+
+  .target-icon.text {
+    font-size: 11px;
+  }
+
+  .target-icon.fill,
+  .target-icon.stroke {
+    width: 9px;
+    height: 9px;
+    border-width: 1px;
+  }
 }
 
 .mini-btn {

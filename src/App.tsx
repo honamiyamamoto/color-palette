@@ -11,7 +11,7 @@ import type { ApplyTarget, Palette } from './types/palette'
 import type { SlideElement } from './types/slide'
 
 function App() {
-  const TASK_PANE_MIN_WIDTH = 300
+  const TASK_PANE_MIN_WIDTH = 280
   const TASK_PANE_MAX_WIDTH = 520
   const TASK_PANE_DEFAULT_WIDTH = 300
 
