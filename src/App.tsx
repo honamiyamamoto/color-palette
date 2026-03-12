@@ -11,9 +11,9 @@ import type { ApplyTarget, Palette } from './types/palette'
 import type { SlideElement } from './types/slide'
 
 function App() {
-  const TASK_PANE_MIN_WIDTH = 320
+  const TASK_PANE_MIN_WIDTH = 300
   const TASK_PANE_MAX_WIDTH = 520
-  const TASK_PANE_DEFAULT_WIDTH = 320
+  const TASK_PANE_DEFAULT_WIDTH = 300
 
   const [palette, setPalette] = useState<Palette>(() => loadPalette())
   const [slideElements, setSlideElements] =

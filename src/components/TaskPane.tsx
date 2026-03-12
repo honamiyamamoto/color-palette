@@ -189,7 +189,6 @@ export function TaskPane({ isOpen, palette, onApplyColor, onSavePalette }: TaskP
                       <span className="target-icon text" style={{ color: color.hex }}>
                         A
                       </span>
-                      <span className="target-label">文字</span>
                     </button>
                     <button
                       type="button"
@@ -201,7 +200,6 @@ export function TaskPane({ isOpen, palette, onApplyColor, onSavePalette }: TaskP
                         className="target-icon fill"
                         style={{ backgroundColor: color.hex, borderColor: color.hex }}
                       />
-                      <span className="target-label">オブジェクト</span>
                     </button>
                     <button
                       type="button"
@@ -210,7 +208,6 @@ export function TaskPane({ isOpen, palette, onApplyColor, onSavePalette }: TaskP
                       onClick={() => onApplyColor('stroke', color.hex)}
                     >
                       <span className="target-icon stroke" style={{ borderColor: color.hex }} />
-                      <span className="target-label">枠線</span>
                     </button>
                   </div>
                 )}

@@ -39,7 +39,7 @@
 
 
 .workspace-body {
-  --task-pane-width: 320px;
+  --task-pane-width: 300px;
   flex: 1;
   position: relative;
   overflow: hidden;
@@ -171,7 +171,7 @@
   right: 0;
   bottom: 0;
   width: var(--task-pane-width);
-  min-width: 320px;
+  min-width: 300px;
   background: #f8fbff;
   border-left: 1px solid #cad5e5;
   box-shadow: -8px 0 20px rgba(40, 57, 89, 0.15);
@@ -263,7 +263,7 @@
 .task-pane-body {
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 10px 12px;
+  padding: 0 8px 10px;
 }
 
 .group-card {
@@ -271,7 +271,7 @@
   border-radius: 8px;
   background: #ffffff;
   margin-bottom: 8px;
-  padding: 8px;
+  padding: 7px;
 }
 
 .group-header {
@@ -300,11 +300,11 @@
 .color-row {
   display: grid;
   grid-template-columns: 22px 1fr;
-  gap: 4px 7px;
+  gap: 4px 6px;
   border: 1px solid #ebf0f7;
   border-radius: 6px;
-  padding: 6px 5px;
-  margin-bottom: 5px;
+  padding: 5px 4px;
+  margin-bottom: 4px;
 }
 
 .swatch-preview {
@@ -347,21 +347,19 @@
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  margin-top: 2px;
+  gap: 3px;
+  margin-top: 1px;
 }
 
 .apply-target-btn {
   border: 1px solid #c4d1e3;
   background: #f8fbff;
   border-radius: 5px;
-  height: 34px;
-  padding: 2px 0 1px;
+  height: 26px;
+  padding: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1px;
 }
 
 .apply-target-btn:hover {
@@ -375,25 +373,20 @@
 }
 
 .target-icon.text {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
 }
 
 .target-icon.fill,
 .target-icon.stroke {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   border-radius: 2px;
   border: 2px solid #64748b;
 }
 
 .target-icon.stroke {
   background: transparent;
-}
-
-.target-label {
-  font-size: 9px;
-  color: #42526a;
 }
 
 .mini-btn {
